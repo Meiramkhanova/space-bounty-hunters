@@ -1,0 +1,137 @@
+{
+  "info": {
+    "_postman_id": "b0unty-hunt-2026-midterm-001",
+    "name": "Space Bounty Hunters API",
+    "description": "Midterm collection: criminals list/filter/sort/detail + hunt journal CRUD + invalid request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000/api" },
+    { "key": "huntId", "value": "1" },
+    { "key": "criminalId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Criminals",
+      "item": [
+        {
+          "name": "List criminals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/criminals/",
+            "description": "GET /api/criminals/ — list all wanted criminals."
+          }
+        },
+        {
+          "name": "Filter + sort criminals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/criminals/?min_reward=5000&armed=true&sort=-reward",
+            "description": "Filters work together: min_reward, armed, sort by reward desc."
+          }
+        },
+        {
+          "name": "Get criminal by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/criminals/{{criminalId}}/",
+            "description": "GET /api/criminals/{id}/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hunts",
+      "item": [
+        {
+          "name": "List hunts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/hunts/",
+            "description": "GET /api/hunts/"
+          }
+        },
+        {
+          "name": "List hunts by criminal_id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/hunts/?criminal_id=1"
+          }
+        },
+        {
+          "name": "Create hunt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('huntId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criminal_id\": 3,\n  \"success\": false,\n  \"notes\": \"Target escaped through an asteroid field.\"\n}"
+            },
+            "url": "{{baseUrl}}/hunts/",
+            "description": "POST /api/hunts/ — created_at is set by server."
+          }
+        },
+        {
+          "name": "Get hunt by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/hunts/{{huntId}}/"
+          }
+        },
+        {
+          "name": "Update hunt (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"success\": true,\n  \"notes\": \"Captured on second pass.\"\n}"
+            },
+            "url": "{{baseUrl}}/hunts/{{huntId}}/"
+          }
+        },
+        {
+          "name": "Delete hunt",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/hunts/{{huntId}}/",
+            "description": "DELETE returns 204 No Content."
+          }
+        },
+        {
+          "name": "Invalid create (missing criminal)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criminal_id\": 99999,\n  \"success\": false,\n  \"notes\": \"This criminal does not exist.\"\n}"
+            },
+            "url": "{{baseUrl}}/hunts/",
+            "description": "Invalid request — non-existent criminal_id should return 400."
+          }
+        }
+      ]
+    }
+  ]
+}
